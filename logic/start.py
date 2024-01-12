@@ -16,7 +16,7 @@ async def start_handler(msg: Message, state: FSMContext):
     status, data = await get_user(msg.from_user.id)
     if status == 200:
         await state.set_state(states.Menu.main_menu)
-        await main_menu_handler(msg)
+        await main_menu_handler(msg, state)
     else:
         await state.set_state(states.Register.first_name)
         await msg.answer('Ismingizni kiriting:')

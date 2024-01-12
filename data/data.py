@@ -4,3 +4,8 @@ main_menu = {
     'about': "❗️ Bot haqida ma'lumot",
     'about_me': "🔰 Mening ma'lumotlarim"
 }
+
+create_test_menu = {
+    'science': '📔 Fan',
+    'block': '📚 Blok'
+}
