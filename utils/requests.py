@@ -12,3 +12,9 @@ async def get_user(telegram_id: int) -> tuple:
     }
     response = httpx.post(url, data=context)
     return response.status_code, response.json()
+
+
+def create_user(data: dict) -> dict:
+    url = f'{base_url}/user/get-or-create/'
+    response = httpx.post(url, data=data)
+    return response.json()
