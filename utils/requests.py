@@ -18,3 +18,14 @@ def create_user(data: dict) -> dict:
     url = f'{base_url}/user/get-or-create/'
     response = httpx.post(url, data=data)
     return response.json()
+
+
+async def create_test(data) -> dict:
+    url = f'{base_url}/science/'
+    context = {
+        'name': data['name'],
+        'keys': data['keys'],
+        'author': data['id'],
+    }
+    response = httpx.post(url, data=context)
+    return response.json()
