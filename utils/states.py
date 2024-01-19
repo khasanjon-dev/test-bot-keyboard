@@ -14,5 +14,6 @@ class Menu(StatesGroup):
 class CreateTest(StatesGroup):
     menu = State()
     type = State()
-    name = State()
-    keys = State()
+    science_name = State()
+    science_keys = State()
+    block_keys = State()
