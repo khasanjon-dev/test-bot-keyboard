@@ -20,12 +20,22 @@ def create_user(data: dict) -> dict:
     return response.json()
 
 
-async def create_test(data) -> dict:
+async def create_test(data: dict) -> dict:
     url = f'{base_url}/science/'
     context = {
         'name': data['name'],
         'keys': data['keys'],
         'author': data['id'],
+    }
+    response = httpx.post(url, data=context)
+    return response.json()
+
+
+async def create_block_test(data: dict) -> dict:
+    url = f'{base_url}/block/'
+    context = {
+        'keys': data['keys'],
+        'author': data['id']
     }
     response = httpx.post(url, data=context)
     return response.json()
