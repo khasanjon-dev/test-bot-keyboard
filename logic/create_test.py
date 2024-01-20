@@ -77,6 +77,7 @@ async def get_block_test_keys(msg: Message, state: FSMContext):
     get_data = await state.get_data()
     status_code, user = await requests.get_user(msg.from_user.id)
     get_data['id'] = user['id']
+    get_data['size'] = len(keys_serializer(get_data['keys']))
     test = await requests.create_block_test(get_data)
     await test_final_response(msg, state, test, user)
 
@@ -88,6 +89,7 @@ async def get_test_keys(msg: Message, state: FSMContext):
     get_data = await state.get_data()
     status_code, user = await requests.get_user(msg.from_user.id)
     get_data['id'] = user['id']
+    get_data['size'] = len(keys_serializer(get_data['keys']))
     test = await requests.create_test(get_data)
     await test_final_response(msg, state, test, user)
 
@@ -99,7 +101,7 @@ async def test_final_response(msg: Message, state: FSMContext, test, user):
     text = (f"🆔 Test id:\n"
             f"<pre>{test['id']}</pre>\n"
             f"✉️ Savollar soni:\n"
-            f"<pre>{len(keys_serializer(test['keys']))}</pre>\n"
+            f"<pre>{test['size']}</pre>\n"
             f"✍️ Test muallifi:\n"
             f"<a href='tg://user?id={user['telegram_id']}'>{user['first_name']} {user['last_name']}</a>")
     markup = keyboard_builder(data.main_menu.values(), [1, 1, 2])

@@ -17,3 +17,10 @@ class CreateTest(StatesGroup):
     science_name = State()
     science_keys = State()
     block_keys = State()
+
+
+class CheckAnswer(StatesGroup):
+    menu = State()
+    type = State()
+    id = State()
+    keys = State()

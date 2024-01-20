@@ -25,6 +25,7 @@ async def create_test(data: dict) -> dict:
     context = {
         'name': data['name'],
         'keys': data['keys'],
+        'size': data['size'],
         'author': data['id'],
     }
     response = httpx.post(url, data=context)
@@ -35,7 +36,8 @@ async def create_block_test(data: dict) -> dict:
     url = f'{base_url}/block/'
     context = {
         'keys': data['keys'],
-        'author': data['id']
+        'author': data['id'],
+        'size': data['size']
     }
     response = httpx.post(url, data=context)
     return response.json()
