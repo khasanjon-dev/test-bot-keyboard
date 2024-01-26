@@ -8,19 +8,23 @@ class Register(StatesGroup):
 
 class Menu(StatesGroup):
     main_menu = State()
-    create_test = State()
 
 
 class CreateTest(StatesGroup):
     menu = State()
     type = State()
+    mandatory_keys = State()
+    first_basic_keys = State()
+    second_basic_keys = State()
     science_name = State()
     science_keys = State()
     block_keys = State()
 
 
-class CheckAnswer(StatesGroup):
+class Answer(StatesGroup):
     menu = State()
     type = State()
-    id = State()
-    keys = State()
+    science_id = State()
+    block_id = State()
+    science_keys = State()
+    block_keys = State()

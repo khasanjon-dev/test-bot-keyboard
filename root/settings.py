@@ -41,6 +41,7 @@ class Settings:
 
     redis = RedisConfig()
     bot = BotConfig()
+    admin_username = os.getenv('ADMIN_USERNAME')
 
 
 settings = Settings()

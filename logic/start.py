@@ -4,8 +4,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 
 from logic.menu import main_menu_handler
-from utils import states
-from utils.requests import get_user, create_user
+from utils import states, request
 
 start = Router()
 
@@ -13,7 +12,7 @@ start = Router()
 @start.message(CommandStart())
 async def start_handler(msg: Message, state: FSMContext):
     await state.clear()
-    status, data = await get_user(msg.from_user.id)
+    status, data = await request.user.get(msg.from_user.id)
     if status == 200:
         await state.set_state(states.Menu.main_menu)
         await main_menu_handler(msg, state)
@@ -41,6 +40,6 @@ async def get_last_name(msg: Message, state: FSMContext):
     state_data = await state.get_data()
     state_data['telegram_id'] = msg.from_user.id
     # create user
-    create_user(state_data)
+    await request.user.create(state_data)
     await state.clear()
     await start_handler(msg, state)
