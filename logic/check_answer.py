@@ -61,26 +61,26 @@ async def get_science_id(msg: Message, state: FSMContext):
     status_code, response = await request.science.get(msg.text)
     if status_code == 200:
         # user avval topshirganini tekshirishim kerak
-        user = await request.user.get(msg.from_user.id)
-        status, answer_api = request.answer.get({'science': msg.text, 'user': user['id']})
+        _, user = await request.user.get(msg.from_user.id)
+        status, answer_api = await request.answer.get({'test': msg.text, 'user': user['id']})
         if status == 404:
-            pass
+            await state.update_data({'science_id': msg.text})
+            await state.set_state(states.Answer.science_keys)
+            await request_science_keys(msg)
         else:
-            text = (f"🆔 Test id:\n"
+            await state.clear()
+            await state.set_state(states.Menu.main_menu)
+            text = (f"Siz bu testga avvalroq javob yuborgansiz !\n\n"
+                    f"🆔 Test id:\n"
                     f"<blockquote>{response['id']}</blockquote>\n"
                     f"✉️ Savollar soni:\n"
                     f"<blockquote>{response['size']}</blockquote>\n"
-                    f"✍️ Test muallifi:\n"
-                    f"<a href='tg://user?id={user['telegram_id']}'>{user['first_name']} {user['last_name']}</a>\n\n"
-                    f"<b>♻️ Test ID orqali javoblarni tekshirish mumkin</b>")
-
-            text = (f"Siz bu testga avvalroq javob yuborgansiz !\n"
-                    f"🆔 Test id:\n"
-                    f"<blockquote>{answer_api}</blockquote>")
-            await msg.answer()
-        await state.update_data({'science_id': msg.text})
-        await state.set_state(states.Answer.science_keys)
-        await request_science_keys(msg)
+                    f"✅ To'g'ri javoblar soni:\n"
+                    f"<blockquote>{answer_api['true_answers']}</blockquote>\n"
+                    f"〽️ Natija:"
+                    f"<blockquote>{(answer_api['true_answers'] / response['size'] * 100):.2f} %</blockquote>")
+            markup = keyboard_builder(data.main_menu.values(), [1, 1, 2])
+            await msg.answer(text, ParseMode.HTML, reply_markup=markup)
     else:
         text = ('⚠️ Bunday Test mavjud emas\n'
                 '🆔♻️ Test id tekshirib qayta yuboring')
