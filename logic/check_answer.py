@@ -58,7 +58,7 @@ async def request_science_id(msg: Message, state: FSMContext):
 @answer.message(states.Answer.science_id)
 async def get_science_id(msg: Message, state: FSMContext):
     # check available this test id
-    status_code, response = await request.science.get(msg.text)
+    status_code, science_api = await request.science.get(msg.text)
     if status_code == 200:
         # user avval topshirganini tekshirishim kerak
         _, user = await request.user.get(msg.from_user.id)
@@ -70,15 +70,15 @@ async def get_science_id(msg: Message, state: FSMContext):
         else:
             await state.clear()
             await state.set_state(states.Menu.main_menu)
-            text = (f"Siz bu testga avvalroq javob yuborgansiz !\n\n"
+            text = (f"❇️ Siz bu testga avvalroq qatnashgansiz !\n\n"
                     f"🆔 Test id:\n"
-                    f"<blockquote>{response['id']}</blockquote>\n"
+                    f"<blockquote>{science_api['id']}</blockquote>\n"
                     f"✉️ Savollar soni:\n"
-                    f"<blockquote>{response['size']}</blockquote>\n"
+                    f"<blockquote>{science_api['size']}</blockquote>\n"
                     f"✅ To'g'ri javoblar soni:\n"
                     f"<blockquote>{answer_api['true_answers']}</blockquote>\n"
                     f"〽️ Natija:"
-                    f"<blockquote>{(answer_api['true_answers'] / response['size'] * 100):.2f} %</blockquote>")
+                    f"<blockquote>{(answer_api['true_answers'] / science_api['size'] * 100):.2f} %</blockquote>")
             markup = keyboard_builder(data.main_menu.values(), [1, 1, 2])
             await msg.answer(text, ParseMode.HTML, reply_markup=markup)
     else:
@@ -119,10 +119,36 @@ async def get_science_keys(msg: Message, state: FSMContext):
         await science_result(msg, state, get_data)
 
 
+'''
+👤 Foydalanuvchi: 
+Aliyev Vali
+
+📖 Test kodi: 93630
+✏️ Jami savollar soni: 8 ta
+✅ To'g'ri javoblar soni: 8 ta
+🔣 Foiz : 100 %
+
+
+
+☝️ Noto`g`ri javoblaringiz test yakunlangandan so'ng yuboriladi.
+--------------------------------
+🕐 Sana, vaqt: 2024-01-19 17:14:30
+'''
+
+
 async def science_result(msg: Message, state: FSMContext, get_data: dict):
     status, response = await request.answer.create(get_data)
     if status == 201:
-        await msg.answer('Muvaf')
+        text = (f"❇️ Siz bu testga avvalroq qatnashgansiz !\n\n"
+                f"🆔 Test id:\n"
+                f"<blockquote>{response['id']}</blockquote>\n"
+                f"✉️ Savollar soni:\n"
+                f"<blockquote>{response['size']}</blockquote>\n"
+                f"✅ To'g'ri javoblar soni:\n"
+                f"<blockquote>{answer_api['true_answers']}</blockquote>\n"
+                f"〽️ Natija:"
+                f"<blockquote>{(answer_api['true_answers'] / response['size'] * 100):.2f} %</blockquote>")
+        await msg.answer()
     else:
         markup = keyboard_builder(data.main_menu.values(), [1, 1, 2])
         await msg.answer(f"⚠️ Xatolik aniqlandi\n"
