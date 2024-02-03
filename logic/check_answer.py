@@ -64,7 +64,7 @@ async def get_science_id(msg: Message, state: FSMContext):
         _, user = await request.user.get(msg.from_user.id)
         status, answer_api = await request.answer.get({'test': msg.text, 'user': user['id']})
         if status == 404:
-            await state.update_data({'science_id': msg.text})
+            await state.update_data({'test': msg.text})
             await state.set_state(states.Answer.science_keys)
             await request_science_keys(msg)
         else:
@@ -101,7 +101,7 @@ async def request_science_keys(msg: Message):
 @answer.message(states.Answer.science_keys)
 async def get_science_keys(msg: Message, state: FSMContext):
     get_data = await state.get_data()
-    _, test = await request.science.get(get_data['science_id'])
+    _, test = await request.science.get(get_data['test'])
     keys_api = keys_serializer(test['keys'])
     keys = keys_serializer(msg.text)
     if len(keys) != len(keys_api):
@@ -137,18 +137,23 @@ Aliyev Vali
 
 
 async def science_result(msg: Message, state: FSMContext, get_data: dict):
-    status, response = await request.answer.create(get_data)
+    status, answer_api = await request.answer.create(get_data)
     if status == 201:
-        text = (f"❇️ Siz bu testga avvalroq qatnashgansiz !\n\n"
+        _, user = await request.user.get(msg.from_user.id)
+        text = (f"👤 Foydalanuvchi:\n"
+                f"<a href='tg://user?id={user['telegram_id']}'>{user['first_name']} {user['last_name']}</a>\n\n"
                 f"🆔 Test id:\n"
-                f"<blockquote>{response['id']}</blockquote>\n"
+                f"<blockquote>{answer_api['test']}</blockquote>\n"
                 f"✉️ Savollar soni:\n"
-                f"<blockquote>{response['size']}</blockquote>\n"
+                f"<blockquote>{answer_api['true_answers'] + answer_api['false_answers']}</blockquote>\n"
                 f"✅ To'g'ri javoblar soni:\n"
                 f"<blockquote>{answer_api['true_answers']}</blockquote>\n"
                 f"〽️ Natija:"
-                f"<blockquote>{(answer_api['true_answers'] / response['size'] * 100):.2f} %</blockquote>")
-        await msg.answer()
+                f"<blockquote>{(answer_api['true_answers'] / (answer_api['true_answers'] + answer_api['false_answers']) * 100):.2f} %</blockquote>")
+        markup = keyboard_builder(data.main_menu.values(), [1, 1, 2])
+        await state.clear()
+        await state.set_state(states.Menu.main_menu)
+        await msg.answer(text, ParseMode.HTML, reply_markup=markup)
     else:
         markup = keyboard_builder(data.main_menu.values(), [1, 1, 2])
         await msg.answer(f"⚠️ Xatolik aniqlandi\n"

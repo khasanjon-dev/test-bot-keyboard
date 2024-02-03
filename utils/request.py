@@ -60,14 +60,7 @@ class Answer:
     @staticmethod
     async def create(data: dict) -> tuple:
         url = f'{base_url}/answer-science/'
-        context = {
-            'keys': data['keys'],
-            'true_answers': data['true_answers'],
-            'false_answers': data['false_answers'],
-            'test': data['science_id'],
-            'user': data['user']
-        }
-        response = httpx.post(url, data=context)
+        response = httpx.post(url, data=data)
         return response.status_code, response.json()
 
     @staticmethod
