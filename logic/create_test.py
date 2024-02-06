@@ -82,8 +82,7 @@ async def get_science_test_keys(msg: Message, state: FSMContext):
 
 # return finally test response
 async def since_test_final_response(msg: Message, state: FSMContext, test, user):
-    await msg.answer(f"Test yaratildi ✅\n"
-                     f"Test id orqali javoblarni tekshirish mumkin .")
+    await msg.answer(f"Test yaratildi ✅")
     text = (f"🆔 Test id:\n"
             f"<blockquote>{test['id']}</blockquote>\n"
             f"✉️ Savollar soni:\n"
@@ -92,9 +91,9 @@ async def since_test_final_response(msg: Message, state: FSMContext, test, user)
             f"<a href='tg://user?id={user['telegram_id']}'>{user['first_name']} {user['last_name']}</a>\n\n"
             f"<b>♻️ Test ID orqali javoblarni tekshirish mumkin</b>")
     markup = keyboard_builder(data.main_menu.values(), [1, 1, 2])
-    await msg.answer(text, ParseMode.HTML, reply_markup=markup)
     await state.clear()
     await state.set_state(states.Menu.main_menu)
+    await msg.answer(text, ParseMode.HTML, reply_markup=markup)
 
 
 # =====================================================================================================================
@@ -142,7 +141,7 @@ async def request_first_basic_keys(msg: Message, state: FSMContext):
 # get first basic keys
 @create_test.message(states.CreateTest.first_basic_keys)
 async def get_first_basic_keys(msg: Message, state: FSMContext):
-    keys = keys_serializer(msg.text)
+    keys = await keys_serializer(msg.text)
     if len(keys) != 30:
         await msg.answer("⚠️ Siz kiritgan kalitlar soni 30 ta emas\n"
                          "Iltimos tekshirib qayta kiriting!")
@@ -164,7 +163,7 @@ async def request_second_basic_keys(msg: Message, state: FSMContext):
 # get second basic keys
 @create_test.message(states.CreateTest.second_basic_keys)
 async def get_second_basic_keys(msg: Message, state: FSMContext):
-    keys = keys_serializer(msg.text)
+    keys = await keys_serializer(msg.text)
     if len(keys) != 30:
         await msg.answer("⚠️ Siz kiritgan kalitlar soni 30 ta emas\n"
                          "Iltimos tekshirib qayta kiriting!")
@@ -178,6 +177,8 @@ async def save_block_test(msg: Message, state: FSMContext):
     get_data = await state.get_data()
     _, user = await request.user.get(msg.from_user.id)
     get_data['author'] = user['id']
+    keys = get_data['mandatory_keys'] + get_data['first_basic_keys'] + get_data['second_basic_keys']
+    get_data['keys'] = await keys_serializer(keys, True)
     status, block = await request.block.create(get_data)
     if status == 201:
         await block_test_final_response(msg, state, block, user)
@@ -192,16 +193,15 @@ async def save_block_test(msg: Message, state: FSMContext):
 
 # return finally test response
 async def block_test_final_response(msg: Message, state: FSMContext, test, user):
-    await msg.answer(f"Blok Test yaratildi ✅\n"
-                     f"Test id orqali javoblarni tekshirish mumkin .")
+    await msg.answer(f"Blok Test yaratildi ✅")
     text = (f"🆔 Test id:\n"
             f"<blockquote>{test['id']}</blockquote>\n"
             f"✉️ Savollar soni:\n"
-            f"<blockquote>90</blockquote>\n"
+            f"<blockquote>{test['size']}</blockquote>\n"
             f"✍️ Test muallifi:\n"
             f"<a href='tg://user?id={user['telegram_id']}'>{user['first_name']} {user['last_name']}</a>\n\n"
             f"<b>♻️ Test ID orqali javoblarni tekshirish mumkin</b>")
     markup = keyboard_builder(data.main_menu.values(), [1, 1, 2])
-    await msg.answer(text, ParseMode.HTML, reply_markup=markup)
     await state.clear()
     await state.set_state(states.Menu.main_menu)
+    await msg.answer(text, ParseMode.HTML, reply_markup=markup)

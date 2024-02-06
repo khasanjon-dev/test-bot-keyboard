@@ -27,9 +27,7 @@ class Block:
     async def create(data: dict) -> tuple:
         url = f'{base_url}/tests/block/'
         context = {
-            'mandatory_keys': data['mandatory_keys'],
-            'first_basic_keys': data['first_basic_keys'],
-            'second_basic_keys': data['second_basic_keys'],
+            'keys': data['keys'],
             'author': data['author']
         }
         response = httpx.post(url, data=context)
