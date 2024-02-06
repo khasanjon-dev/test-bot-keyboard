@@ -6,8 +6,9 @@ from aiogram.types import Message, ReplyKeyboardRemove
 import data
 from logic.menu import main_menu_handler
 from root import settings
-from utils import states, request, keys_serializer, check_answer
+from utils import states, request
 from utils.keyboardbuilder import keyboard_builder
+from utils.serializers import keys_serializer, check_answer
 
 answer = Router()
 
@@ -62,9 +63,9 @@ async def get_science_id(msg: Message, state: FSMContext):
     if status_code == 200:
         # user avval topshirganini tekshirishim kerak
         _, user = await request.user.get(msg.from_user.id)
-        status, answer_api = await request.answer.get({'test': msg.text, 'user': user['id']})
+        status, answer_api = await request.answer.get({'science': msg.text, 'user': user['id']})
         if status == 404:
-            await state.update_data({'test': msg.text})
+            await state.update_data({'science': msg.text})
             await state.set_state(states.Answer.science_keys)
             await request_science_keys(msg)
         else:
@@ -76,9 +77,9 @@ async def get_science_id(msg: Message, state: FSMContext):
                     f"✉️ Savollar soni:\n"
                     f"<blockquote>{science_api['size']}</blockquote>\n"
                     f"✅ To'g'ri javoblar soni:\n"
-                    f"<blockquote>{answer_api['true_answers']}</blockquote>\n"
+                    f"<blockquote>{len(answer_api['true_answers'])}</blockquote>\n"
                     f"〽️ Natija:"
-                    f"<blockquote>{(answer_api['true_answers'] / science_api['size'] * 100):.2f} %</blockquote>")
+                    f"<blockquote>{(len(answer_api['true_answers']) / answer_api['size'] * 100):.2f} %</blockquote>")
             markup = keyboard_builder(data.main_menu.values(), [1, 1, 2])
             await msg.answer(text, ParseMode.HTML, reply_markup=markup)
     else:
@@ -101,9 +102,9 @@ async def request_science_keys(msg: Message):
 @answer.message(states.Answer.science_keys)
 async def get_science_keys(msg: Message, state: FSMContext):
     get_data = await state.get_data()
-    _, test = await request.science.get(get_data['test'])
-    keys_api = keys_serializer(test['keys'])
-    keys = keys_serializer(msg.text)
+    _, test = await request.science.get(get_data['science'])
+    keys_api = test['keys']
+    keys = await keys_serializer(msg.text)
     if len(keys) != len(keys_api):
         text = (f"Savollar soni: <b>{len(keys_api)}</b>\n"
                 f"Siz yuborgan kalitlar soni <b>{len(keys)}</b>\n"
@@ -112,7 +113,6 @@ async def get_science_keys(msg: Message, state: FSMContext):
     else:
         _, user = await request.user.get(msg.from_user.id)
         true_answers, false_answers = await check_answer(keys, keys_api)
-        get_data['keys'] = keys
         get_data['user'] = user['id']
         get_data['true_answers'] = true_answers
         get_data['false_answers'] = false_answers
@@ -143,13 +143,13 @@ async def science_result(msg: Message, state: FSMContext, get_data: dict):
         text = (f"👤 Foydalanuvchi:\n"
                 f"<a href='tg://user?id={user['telegram_id']}'>{user['first_name']} {user['last_name']}</a>\n\n"
                 f"🆔 Test id:\n"
-                f"<blockquote>{answer_api['test']}</blockquote>\n"
+                f"<blockquote>{answer_api['science']}</blockquote>\n"
                 f"✉️ Savollar soni:\n"
-                f"<blockquote>{answer_api['true_answers'] + answer_api['false_answers']}</blockquote>\n"
+                f"<blockquote>{answer_api['size']}</blockquote>\n"
                 f"✅ To'g'ri javoblar soni:\n"
-                f"<blockquote>{answer_api['true_answers']}</blockquote>\n"
+                f"<blockquote>{len(answer_api['true_answers'])}</blockquote>\n"
                 f"〽️ Natija:"
-                f"<blockquote>{(answer_api['true_answers'] / (answer_api['true_answers'] + answer_api['false_answers']) * 100):.2f} %</blockquote>")
+                f"<blockquote>{(len(answer_api['true_answers']) / answer_api['size'] * 100):.2f} %</blockquote>")
         markup = keyboard_builder(data.main_menu.values(), [1, 1, 2])
         await state.clear()
         await state.set_state(states.Menu.main_menu)

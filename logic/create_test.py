@@ -7,8 +7,9 @@ from aiogram.types import Message, ReplyKeyboardRemove
 from data import data
 from logic.menu import main_menu_handler
 from root import settings
-from utils import states, request, keys_serializer
+from utils import states, request
 from utils.keyboardbuilder import keyboard_builder
+from utils.serializers import keys_serializer
 
 create_test = Router()
 
@@ -74,7 +75,7 @@ async def get_science_test_keys(msg: Message, state: FSMContext):
     get_data = await state.get_data()
     status_code, user = await request.user.get(msg.from_user.id)
     get_data['id'] = user['id']
-    get_data['keys'] = keys_serializer(get_data['keys'])
+    get_data['keys'] = await keys_serializer(get_data['keys'], True)
     test = await request.science.create(get_data)
     await since_test_final_response(msg, state, test, user)
 
@@ -119,7 +120,7 @@ async def request_mandatory(msg: Message, state: FSMContext):
 # get mandatory  keys
 @create_test.message(states.CreateTest.mandatory_keys)
 async def get_mandatory_keys(msg: Message, state: FSMContext):
-    keys = keys_serializer(msg.text)
+    keys = await keys_serializer(msg.text)
     if len(keys) != 30:
         await msg.answer("⚠️ Siz kiritgan kalitlar soni 30 ta emas\n"
                          "Iltimos tekshirib qayta kiriting!")
