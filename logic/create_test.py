@@ -74,7 +74,7 @@ async def get_science_test_keys(msg: Message, state: FSMContext):
     get_data = await state.get_data()
     status_code, user = await request.user.get(msg.from_user.id)
     get_data['id'] = user['id']
-    get_data['size'] = len(keys_serializer(get_data['keys']))
+    get_data['keys'] = keys_serializer(get_data['keys'])
     test = await request.science.create(get_data)
     await since_test_final_response(msg, state, test, user)
 
