@@ -87,7 +87,7 @@ async def get_science_id(msg: Message, state: FSMContext):
             await msg.answer(text, ParseMode.HTML, reply_markup=markup)
     else:
         text = ('⚠️ Bunday Test mavjud emas\n'
-                '🆔♻️ Test id tekshirib qayta yuboring')
+                '♻️ Test 🆔 tekshirib qayta yuboring')
         await state.set_state(states.Answer.science_id)
         await msg.answer(text)
 
@@ -150,3 +150,28 @@ async def science_result(msg: Message, state: FSMContext, get_data: dict):
                          f"✍️ {settings.admin_username}", reply_markup=markup)
         await state.clear()
         await state.set_state(states.Menu.main_menu)
+
+
+# ============================================================================================================
+#    B L O C K
+# ============================================================================================================
+# request block id
+async def request_block_id(msg: Message, state: FSMContext):
+    await state.set_state(states.Answer.block_id)
+    await msg.answer('Test 🆔 ni yuboring:', reply_markup=ReplyKeyboardRemove())
+
+
+# get block id
+@answer.message(states.Answer.block_id)
+async def get_block_id(msg: Message, state: FSMContext):
+    # check available test id
+    status_code, block_api = await request.block.get(msg.text)
+    if status_code == 200:
+        # user avval topshirganini tekshirishim kerak
+        _, user = await request.user.get(msg.from_user.id)
+        status, answer_api = await request.answer.get
+    else:
+        text = ('⚠️ Bunday Test mavjud emas\n'
+                '♻️ Test 🆔 tekshirib qayta yuboring')
+        await state.set_state(states.Answer.science_id)
+        await msg.answer(text)

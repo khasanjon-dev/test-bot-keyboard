@@ -33,6 +33,12 @@ class Block:
         response = httpx.post(url, data=context)
         return response.status_code, response.json()
 
+    @staticmethod
+    async def get(block_id: int) -> tuple:
+        url = f'{base_url}/tests/block/{block_id}/'
+        response = httpx.get(url)
+        return response.status_code, response.json()
+
 
 class Science:
     @staticmethod
@@ -67,10 +73,11 @@ class Answer:
         return response.status_code, response.json()
 
     @staticmethod
-    async def get(data: dict) -> tuple:
+    async def get_science(data: dict) -> tuple:
         url = f'{base_url}/answers/science/get-answer/'
         response = httpx.post(url, data=data)
         return response.status_code, response.json()
+
 
 
 user = User()
