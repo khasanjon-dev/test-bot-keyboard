@@ -8,7 +8,7 @@ from logic.menu import main_menu_handler
 from root import settings
 from utils import states, request
 from utils.keyboardbuilder import keyboard_builder
-from utils.serializers import keys_serializer, check_answer
+from utils.serializers import keys_serializer, check_answer, date_change_format
 
 answer = Router()
 
@@ -72,14 +72,17 @@ async def get_science_id(msg: Message, state: FSMContext):
             await state.clear()
             await state.set_state(states.Menu.main_menu)
             text = (f"❇️ Siz bu testga avvalroq qatnashgansiz !\n\n"
-                    f"🆔 Test id:\n"
-                    f"<blockquote>{science_api['id']}</blockquote>\n"
-                    f"✉️ Savollar soni:\n"
-                    f"<blockquote>{science_api['size']}</blockquote>\n"
-                    f"✅ To'g'ri javoblar soni:\n"
+                    f"🆔 Test id:"
+                    f"<blockquote>{answer_api['science']}</blockquote>\n"
+                    f"✉️ Savollar soni:"
+                    f"<blockquote>{answer_api['size']}</blockquote>\n"
+                    f"✅ To'g'ri javoblar soni:"
                     f"<blockquote>{len(answer_api['true_answers'])}</blockquote>\n"
+                    f"⏰ Siz topshirgan vaqt:"
+                    f"<blockquote>{date_change_format(answer_api['created_at'])}</blockquote>\n"
                     f"〽️ Natija:"
-                    f"<blockquote>{(len(answer_api['true_answers']) / answer_api['size'] * 100):.2f} %</blockquote>")
+                    f"<blockquote>{(len(answer_api['true_answers']) / answer_api['size'] * 100):.2f} %</blockquote>\n\n"
+                    f"❗️ Noto'g'ri javoblaringiz test yakunlanganidan so'ng yuboriladi!\n")
             markup = keyboard_builder(data.main_menu.values(), [1, 1, 2])
             await msg.answer(text, ParseMode.HTML, reply_markup=markup)
     else:
@@ -119,37 +122,23 @@ async def get_science_keys(msg: Message, state: FSMContext):
         await science_result(msg, state, get_data)
 
 
-'''
-👤 Foydalanuvchi: 
-Aliyev Vali
-
-📖 Test kodi: 93630
-✏️ Jami savollar soni: 8 ta
-✅ To'g'ri javoblar soni: 8 ta
-🔣 Foiz : 100 %
-
-
-
-☝️ Noto`g`ri javoblaringiz test yakunlangandan so'ng yuboriladi.
---------------------------------
-🕐 Sana, vaqt: 2024-01-19 17:14:30
-'''
-
-
 async def science_result(msg: Message, state: FSMContext, get_data: dict):
     status, answer_api = await request.answer.create(get_data)
     if status == 201:
         _, user = await request.user.get(msg.from_user.id)
         text = (f"👤 Foydalanuvchi:\n"
                 f"<a href='tg://user?id={user['telegram_id']}'>{user['first_name']} {user['last_name']}</a>\n\n"
-                f"🆔 Test id:\n"
+                f"🆔 Test id:"
                 f"<blockquote>{answer_api['science']}</blockquote>\n"
-                f"✉️ Savollar soni:\n"
+                f"✉️ Savollar soni:"
                 f"<blockquote>{answer_api['size']}</blockquote>\n"
-                f"✅ To'g'ri javoblar soni:\n"
+                f"✅ To'g'ri javoblar soni:"
                 f"<blockquote>{len(answer_api['true_answers'])}</blockquote>\n"
+                f"⏰ Siz topshirgan vaqt:"
+                f"<blockquote>{date_change_format(answer_api['created_at'])}</blockquote>\n"
                 f"〽️ Natija:"
-                f"<blockquote>{(len(answer_api['true_answers']) / answer_api['size'] * 100):.2f} %</blockquote>")
+                f"<blockquote>{(len(answer_api['true_answers']) / answer_api['size'] * 100):.2f} %</blockquote>\n\n"
+                f"❗️ Noto'g'ri javoblaringiz test yakunlanganidan so'ng yuboriladi!\n")
         markup = keyboard_builder(data.main_menu.values(), [1, 1, 2])
         await state.clear()
         await state.set_state(states.Menu.main_menu)

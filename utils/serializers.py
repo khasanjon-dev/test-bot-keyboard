@@ -32,5 +32,5 @@ async def check_answer(keys: dict, keys_api: dict) -> tuple:
 
 def date_change_format(date: str):
     datetime_object = datetime.strptime(date, "%Y-%m-%dT%H:%M:%S.%f%z")
-    formatted_time = datetime_object.strftime("%m/%d/%Y, %H:%M:%S")
+    formatted_time = datetime_object.strftime("%H:%M:%S | %d-%m-%Y")
     return formatted_time
