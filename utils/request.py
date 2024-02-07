@@ -22,9 +22,9 @@ class User:
         return response.json()
 
 
-class Block:
+class Test:
     @staticmethod
-    async def create(data: dict) -> tuple:
+    async def create_block(data: dict) -> tuple:
         url = f'{base_url}/tests/block/'
         context = {
             'keys': data['keys'],
@@ -34,15 +34,13 @@ class Block:
         return response.status_code, response.json()
 
     @staticmethod
-    async def get(block_id: int) -> tuple:
+    async def get_block(block_id: int) -> tuple:
         url = f'{base_url}/tests/block/{block_id}/'
         response = httpx.get(url)
         return response.status_code, response.json()
 
-
-class Science:
     @staticmethod
-    async def create(data: dict) -> dict:
+    async def create_science(data: dict) -> dict:
         url = f'{base_url}/tests/science/'
         context = {
             'name': data['name'],
@@ -53,7 +51,7 @@ class Science:
         return response.json()
 
     @staticmethod
-    async def get(science_id: int) -> tuple:
+    async def get_science(science_id: int) -> tuple:
         url = f'{base_url}/tests/science/{science_id}/'
         response = httpx.get(url)
         return response.status_code, response.json()
@@ -61,13 +59,13 @@ class Science:
 
 class Answer:
     @staticmethod
-    async def create(data: dict) -> tuple:
+    async def create_science(data: dict) -> tuple:
         url = f'{base_url}/answers/science/'
         context = {
-            "true_answers": data['true_answers'],
-            "false_answers": data['false_answers'],
-            "science": data['science'],
-            "user": data['user']
+            'true_answers': data['true_answers'],
+            'false_answers': data['false_answers'],
+            'science': data['science'],
+            'user': data['user']
         }
         response = httpx.post(url, data=context)
         return response.status_code, response.json()
@@ -75,12 +73,36 @@ class Answer:
     @staticmethod
     async def get_science(data: dict) -> tuple:
         url = f'{base_url}/answers/science/get-answer/'
-        response = httpx.post(url, data=data)
+        context = {
+            'user': data['user'],
+            'science': data['science']
+        }
+        response = httpx.post(url, data=context)
+        return response.status_code, response.json()
+
+    @staticmethod
+    async def get_block(data: dict) -> tuple:
+        url = f'{base_url}/answers/block/get-answer/'
+        context = {
+            'user': data['user'],
+            'block': data['block']
+        }
+        response = httpx.post(url, data=context)
+        return response.status_code, response.json()
+
+    @staticmethod
+    async def create_block(data: dict) -> tuple:
+        url = f'{base_url}/answers/block/'
+        context = {
+            'true_answers': data['true_answers'],
+            'false_answers': data['false_answers'],
+            'block': data['block'],
+            'user': data['user']
+        }
+        response = httpx.post(url, data=context)
         return response.status_code, response.json()
 
 
-
 user = User()
-block = Block()
-science = Science()
+test = Test()
 answer = Answer()

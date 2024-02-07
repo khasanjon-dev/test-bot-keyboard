@@ -27,4 +27,6 @@ class Answer(StatesGroup):
     science_id = State()
     block_id = State()
     science_keys = State()
-    block_keys = State()
+    mandatory_keys = State()
+    first_basic_keys = State()
+    second_basic_keys = State()

@@ -76,7 +76,7 @@ async def get_science_test_keys(msg: Message, state: FSMContext):
     status_code, user = await request.user.get(msg.from_user.id)
     get_data['id'] = user['id']
     get_data['keys'] = await keys_serializer(get_data['keys'], True)
-    test = await request.science.create(get_data)
+    test = await request.test.create_science(get_data)
     await since_test_final_response(msg, state, test, user)
 
 
@@ -121,8 +121,9 @@ async def request_mandatory(msg: Message, state: FSMContext):
 async def get_mandatory_keys(msg: Message, state: FSMContext):
     keys = await keys_serializer(msg.text)
     if len(keys) != 30:
-        await msg.answer("⚠️ Siz kiritgan kalitlar soni 30 ta emas\n"
-                         "Iltimos tekshirib qayta kiriting!")
+        await msg.answer(f"⚠️ Siz kiritgan kalitlar soni {len(keys)}\n"
+                         f"Kalitlar soni 30 ta bo'lishi shart!\n"
+                         f"Iltimos tekshirib qayta kiriting!")
     else:
         await state.update_data({'mandatory_keys': msg.text})
         await request_first_basic_keys(msg, state)
@@ -143,8 +144,9 @@ async def request_first_basic_keys(msg: Message, state: FSMContext):
 async def get_first_basic_keys(msg: Message, state: FSMContext):
     keys = await keys_serializer(msg.text)
     if len(keys) != 30:
-        await msg.answer("⚠️ Siz kiritgan kalitlar soni 30 ta emas\n"
-                         "Iltimos tekshirib qayta kiriting!")
+        await msg.answer(f"⚠️ Siz kiritgan kalitlar soni {len(keys)}\n"
+                         f"Kalitlar soni 30 ta bo'lishi shart!\n"
+                         f"Iltimos tekshirib qayta kiriting!")
     else:
         await state.update_data({'first_basic_keys': msg.text})
         await request_second_basic_keys(msg, state)
@@ -165,8 +167,9 @@ async def request_second_basic_keys(msg: Message, state: FSMContext):
 async def get_second_basic_keys(msg: Message, state: FSMContext):
     keys = await keys_serializer(msg.text)
     if len(keys) != 30:
-        await msg.answer("⚠️ Siz kiritgan kalitlar soni 30 ta emas\n"
-                         "Iltimos tekshirib qayta kiriting!")
+        await msg.answer(f"⚠️ Siz kiritgan kalitlar soni {len(keys)}\n"
+                         f"Kalitlar soni 30 ta bo'lishi shart!\n"
+                         f"Iltimos tekshirib qayta kiriting!")
     else:
         await state.update_data({'second_basic_keys': msg.text})
         await save_block_test(msg, state)
@@ -179,7 +182,7 @@ async def save_block_test(msg: Message, state: FSMContext):
     get_data['author'] = user['id']
     keys = get_data['mandatory_keys'] + get_data['first_basic_keys'] + get_data['second_basic_keys']
     get_data['keys'] = await keys_serializer(keys, True)
-    status, block = await request.block.create(get_data)
+    status, block = await request.test.create_block(get_data)
     if status == 201:
         await block_test_final_response(msg, state, block, user)
     else:
@@ -197,7 +200,7 @@ async def block_test_final_response(msg: Message, state: FSMContext, test, user)
     text = (f"🆔 Test id:\n"
             f"<blockquote>{test['id']}</blockquote>\n"
             f"✉️ Savollar soni:\n"
-            f"<blockquote>{test['size']}</blockquote>\n"
+            f"<blockquote>90</blockquote>\n"
             f"✍️ Test muallifi:\n"
             f"<a href='tg://user?id={user['telegram_id']}'>{user['first_name']} {user['last_name']}</a>\n\n"
             f"<b>♻️ Test ID orqali javoblarni tekshirish mumkin</b>")
