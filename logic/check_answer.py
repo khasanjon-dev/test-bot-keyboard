@@ -74,14 +74,14 @@ async def get_science_id(msg: Message, state: FSMContext):
             text = (f"❇️ Siz bu testga avvalroq qatnashgansiz !\n\n"
                     f"🆔 Test id:"
                     f"<blockquote>{answer_api['science']}</blockquote>\n"
-                    f"✉️ Savollar soni:"
+                    f"📚 Savollar soni:"
                     f"<blockquote>{answer_api['size']}</blockquote>\n"
                     f"✅ To'g'ri javoblar soni:"
-                    f"<blockquote>{len(answer_api['true_answers'])}</blockquote>\n"
+                    f"<blockquote>{answer_api['score']}</blockquote>\n"
                     f"⏰ Siz topshirgan vaqt:"
                     f"<blockquote>{date_change_format(answer_api['created_at'])}</blockquote>\n"
                     f"〽️ Natija:"
-                    f"<blockquote>{(len(answer_api['true_answers']) / answer_api['size'] * 100):.2f} %</blockquote>\n\n"
+                    f"<blockquote>{(answer_api['score'] / answer_api['size'] * 100):.2f} %</blockquote>\n\n"
                     f"❗️ Noto'g'ri javoblaringiz test yakunlanganidan so'ng yuboriladi!\n")
             markup = keyboard_builder(data.main_menu.values(), [1, 1, 2])
             await msg.answer(text, ParseMode.HTML, reply_markup=markup)
@@ -109,16 +109,15 @@ async def get_science_keys(msg: Message, state: FSMContext):
     keys_api = test['keys']
     keys = await keys_serializer(msg.text)
     if len(keys) != len(keys_api):
-        text = (f"Savollar soni: <b>{len(keys_api)}</b>\n"
-                f"Siz yuborgan kalitlar soni <b>{len(keys)}</b>\n"
+        text = (f"Savollar soni: <b>{len(keys_api)}</b> ta\n"
+                f"Siz yuborgan kalitlar soni <b>{len(keys)}</b> ta\n"
                 f"Kalitlaringizni tekshirib qayta kiriting ⚠️")
         await msg.answer(text, ParseMode.HTML)
     else:
         _, user = await request.user.get(msg.from_user.id)
-        true_answers, false_answers = await check_answer(keys, keys_api)
+        true_answers, false_keys = await check_answer(keys, keys_api)
         get_data['user'] = user['id']
-        get_data['true_answers'] = true_answers
-        get_data['false_answers'] = false_answers
+        get_data['false_keys'] = false_keys
         await science_result(msg, state, get_data)
 
 
@@ -130,14 +129,14 @@ async def science_result(msg: Message, state: FSMContext, get_data: dict):
                 f"<a href='tg://user?id={user['telegram_id']}'>{user['first_name']} {user['last_name']}</a>\n\n"
                 f"🆔 Test id:"
                 f"<blockquote>{answer_api['science']}</blockquote>\n"
-                f"✉️ Savollar soni:"
+                f"📚 Savollar soni:"
                 f"<blockquote>{answer_api['size']}</blockquote>\n"
                 f"✅ To'g'ri javoblar soni:"
-                f"<blockquote>{len(answer_api['true_answers'])}</blockquote>\n"
+                f"<blockquote>{answer_api['score']}</blockquote>\n"
                 f"⏰ Siz topshirgan vaqt:"
                 f"<blockquote>{date_change_format(answer_api['created_at'])}</blockquote>\n"
                 f"〽️ Natija:"
-                f"<blockquote>{(len(answer_api['true_answers']) / answer_api['size'] * 100):.2f} %</blockquote>\n\n"
+                f"<blockquote>{(answer_api['score'] / answer_api['size'] * 100):.2f} %</blockquote>\n\n"
                 f"❗️ Noto'g'ri javoblaringiz test yakunlanganidan so'ng yuboriladi!\n")
         markup = keyboard_builder(data.main_menu.values(), [1, 1, 2])
         await state.clear()
@@ -183,11 +182,13 @@ async def get_block_id(msg: Message, state: FSMContext):
         else:
             await state.clear()
             await state.set_state(states.Menu.main_menu)
+            # TODO ozgina chala joyi bor
+
             text = (f"❇️ Siz bu testga avvalroq qatnashgansiz !\n\n"
                     f"🆔 Test id:"
                     f"<blockquote>{answer_api['block']}</blockquote>\n"
-                    f"✉️ Savollar soni:"
-                    f"<blockquote>{answer_api['size']}</blockquote>\n"
+                    f"📚 Savollar soni:"
+                    f"<blockquote>90</blockquote>\n"
                     f"✅ To'g'ri javoblar soni:"
                     f"<blockquote>{len(answer_api['true_answers'])}</blockquote>\n"
                     f"⏰ Siz topshirgan vaqt:"
@@ -219,8 +220,8 @@ async def request_mandatory_keys(msg: Message):
 async def get_mandatory_keys(msg: Message, state: FSMContext):
     keys = await keys_serializer(msg.text)
     if len(keys) != 30:
-        text = (f"Majburiy fan savollar soni: <b>30</b>\n"
-                f"Siz yuborgan kalitlar soni <b>{len(keys)}</b>\n"
+        text = (f"Siz yuborgan kalitlar soni <b>{len(keys)}</b> ta\n"
+                f"Majburiy fan savollar soni: <b>30</b> ta\n"
                 f"Kalitlaringizni tekshirib qayta kiriting ⚠️")
         await msg.answer(text, ParseMode.HTML)
     else:
@@ -242,8 +243,8 @@ async def request_first_basic_keys(msg: Message):
 async def get_first_basic_keys(msg: Message, state: FSMContext):
     keys = await keys_serializer(msg.text)
     if len(keys) != 30:
-        text = (f"1-asosiy fan savollar soni: <b>30</b>\n"
-                f"Siz yuborgan kalitlar soni <b>{len(keys)}</b>\n"
+        text = (f"Siz yuborgan kalitlar soni <b>{len(keys)}</b> ta\n"
+                f"1-asosiy fan savollar soni: <b>30</b> ta\n"
                 f"Kalitlaringizni tekshirib qayta kiriting ⚠️")
         await msg.answer(text, ParseMode.HTML)
     else:
@@ -265,8 +266,8 @@ async def request_second_basic_keys(msg: Message):
 async def get_second_basic_keys(msg: Message, state: FSMContext):
     keys = await keys_serializer(msg.text)
     if len(keys) != 30:
-        text = (f"2-asosiy fan savollar soni: <b>30</b>\n"
-                f"Siz yuborgan kalitlar soni <b>{len(keys)}</b>\n"
+        text = (f"Siz yuborgan kalitlar soni <b>{len(keys)}</b> ta\n"
+                f"2-asosiy fan savollar soni: <b>30</b> ta\n"
                 f"Kalitlaringizni tekshirib qayta kiriting ⚠️")
         await msg.answer(text, ParseMode.HTML)
     else:
@@ -289,7 +290,7 @@ async def block_result(msg: Message, state: FSMContext, get_data: dict):
                 f"<a href='tg://user?id={user['telegram_id']}'>{user['first_name']} {user['last_name']}</a>\n\n"
                 f"🆔 Test id:"
                 f"<blockquote>{answer_api['block']}</blockquote>\n"
-                f"✉️ Savollar soni:"
+                f"📚 Savollar soni:"
                 f"<blockquote>{answer_api['size']}</blockquote>\n"
                 f"✅ To'g'ri javoblar soni:"
                 f"<blockquote>{len(answer_api['true_answers'])}</blockquote>\n"
@@ -309,3 +310,4 @@ async def block_result(msg: Message, state: FSMContext, get_data: dict):
                          f"✍️ {settings.admin_username}", reply_markup=markup)
         await state.clear()
         await state.set_state(states.Menu.main_menu)
+# TODO need fix return result

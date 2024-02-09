@@ -85,7 +85,7 @@ async def since_test_final_response(msg: Message, state: FSMContext, test, user)
     await msg.answer(f"Test yaratildi ✅")
     text = (f"🆔 Test id:\n"
             f"<blockquote>{test['id']}</blockquote>\n"
-            f"✉️ Savollar soni:\n"
+            f"📚 Savollar soni:\n"
             f"<blockquote>{test['size']}</blockquote>\n"
             f"✍️ Test muallifi:\n"
             f"<a href='tg://user?id={user['telegram_id']}'>{user['first_name']} {user['last_name']}</a>\n\n"
@@ -199,7 +199,7 @@ async def block_test_final_response(msg: Message, state: FSMContext, test, user)
     await msg.answer(f"Blok Test yaratildi ✅")
     text = (f"🆔 Test id:\n"
             f"<blockquote>{test['id']}</blockquote>\n"
-            f"✉️ Savollar soni:\n"
+            f"📚 Savollar soni:\n"
             f"<blockquote>90</blockquote>\n"
             f"✍️ Test muallifi:\n"
             f"<a href='tg://user?id={user['telegram_id']}'>{user['first_name']} {user['last_name']}</a>\n\n"

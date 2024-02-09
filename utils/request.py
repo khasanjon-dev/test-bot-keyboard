@@ -62,8 +62,7 @@ class Answer:
     async def create_science(data: dict) -> tuple:
         url = f'{base_url}/answers/science/'
         context = {
-            'true_answers': data['true_answers'],
-            'false_answers': data['false_answers'],
+            'false_keys': data['false_keys'],
             'science': data['science'],
             'user': data['user']
         }

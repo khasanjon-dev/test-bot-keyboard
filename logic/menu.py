@@ -18,3 +18,4 @@ async def main_menu_handler(msg: Message, state: FSMContext):
 async def main_menu_keyboards(msg: Message):
     markup = keyboard_builder(data.main_menu.values(), [1, 1, 2])
     await msg.answer("Bo'limlardan birini tanlang!", reply_markup=markup)
+
