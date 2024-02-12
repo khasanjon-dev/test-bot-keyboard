@@ -5,10 +5,10 @@ from aiogram.types import Message, ReplyKeyboardRemove
 
 import data
 from logic.menu import main_menu_handler
-from root import settings
+from root import settings, bot
 from utils import states, request
 from utils.keyboardbuilder import keyboard_builder
-from utils.serializers import keys_serializer, check_answer, date_change_format
+from utils.serializers import keys_serializer, check_answer
 
 answer = Router()
 
@@ -46,6 +46,24 @@ async def get_test_type(msg: Message, state: FSMContext):
 
 
 # ============================================================================================================
+#    A D M I N
+# ============================================================================================================
+
+
+async def send_test_owner(data: dict):
+    user = data['user']
+    text = (f"<b>Foydalanuvchi javoblarini yubordi!</b>\n\n"
+            f"✍️: <a href='tg://user?id={user['telegram_id']}'>{user['first_name']} {user['last_name']}</a>\n"
+            f"🆔 Test ID:\n"
+            f"<blockquote>{data['science_id']}</blockquote>\n"
+            f"〽️ Natija:\n"
+            f"<blockquote>{data['score']} ta | {data['size']} tadan</blockquote>\n"
+            f"❌ Xato test raqamlari:\n"
+            f"<blockquote>{data['false_keys'] if data['false_keys'] else 'mavjud emas'}</blockquote>")
+    await bot.send_message(data['owner_id'], text=text, parse_mode=ParseMode.HTML)
+
+
+# ============================================================================================================
 #    S C I E N C E
 # ============================================================================================================
 
@@ -71,6 +89,7 @@ async def get_science_id(msg: Message, state: FSMContext):
         else:
             await state.clear()
             await state.set_state(states.Menu.main_menu)
+            markup = keyboard_builder(data.main_menu.values(), [1, 1, 2])
             text = (f"❇️ Siz bu testga avvalroq qatnashgansiz !\n\n"
                     f"🆔 Test id:"
                     f"<blockquote>{answer_api['science']}</blockquote>\n"
@@ -79,11 +98,10 @@ async def get_science_id(msg: Message, state: FSMContext):
                     f"✅ To'g'ri javoblar soni:"
                     f"<blockquote>{answer_api['score']}</blockquote>\n"
                     f"⏰ Siz topshirgan vaqt:"
-                    f"<blockquote>{date_change_format(answer_api['created_at'])}</blockquote>\n"
+                    f"<blockquote>{answer_api['created_at']}</blockquote>\n"
                     f"〽️ Natija:"
                     f"<blockquote>{(answer_api['score'] / answer_api['size'] * 100):.2f} %</blockquote>\n\n"
                     f"❗️ Noto'g'ri javoblaringiz test yakunlanganidan so'ng yuboriladi!\n")
-            markup = keyboard_builder(data.main_menu.values(), [1, 1, 2])
             await msg.answer(text, ParseMode.HTML, reply_markup=markup)
     else:
         text = ('⚠️ Bunday Test mavjud emas\n'
@@ -134,11 +152,20 @@ async def science_result(msg: Message, state: FSMContext, get_data: dict):
                 f"✅ To'g'ri javoblar soni:"
                 f"<blockquote>{answer_api['score']}</blockquote>\n"
                 f"⏰ Siz topshirgan vaqt:"
-                f"<blockquote>{date_change_format(answer_api['created_at'])}</blockquote>\n"
+                f"<blockquote>{answer_api['created_at']}</blockquote>\n"
                 f"〽️ Natija:"
                 f"<blockquote>{(answer_api['score'] / answer_api['size'] * 100):.2f} %</blockquote>\n\n"
                 f"❗️ Noto'g'ri javoblaringiz test yakunlanganidan so'ng yuboriladi!\n")
         markup = keyboard_builder(data.main_menu.values(), [1, 1, 2])
+        context = {
+            'user': user,
+            'science_id': answer_api['science'],
+            'size': answer_api['size'],
+            'score': answer_api['score'],
+            'false_keys': ', '.join(answer_api['false_keys'].keys()),
+            'owner_id': answer_api['owner_id']
+        }
+        await send_test_owner(context)
         await state.clear()
         await state.set_state(states.Menu.main_menu)
         await msg.answer(text, ParseMode.HTML, reply_markup=markup)
@@ -183,7 +210,6 @@ async def get_block_id(msg: Message, state: FSMContext):
             await state.clear()
             await state.set_state(states.Menu.main_menu)
             # TODO ozgina chala joyi bor
-
             text = (f"❇️ Siz bu testga avvalroq qatnashgansiz !\n\n"
                     f"🆔 Test id:"
                     f"<blockquote>{answer_api['block']}</blockquote>\n"
@@ -192,7 +218,7 @@ async def get_block_id(msg: Message, state: FSMContext):
                     f"✅ To'g'ri javoblar soni:"
                     f"<blockquote>{len(answer_api['true_answers'])}</blockquote>\n"
                     f"⏰ Siz topshirgan vaqt:"
-                    f"<blockquote>{date_change_format(answer_api['created_at'])}</blockquote>\n"
+                    f"<blockquote>{answer_api['created_at']}</blockquote>\n"
                     f"〽️ Natija:"
                     f"<blockquote>{(len(answer_api['true_answers']) / answer_api['size'] * 100):.2f} %</blockquote>\n\n"
                     f"❗️ Noto'g'ri javoblaringiz test yakunlanganidan so'ng yuboriladi!\n")
@@ -295,7 +321,7 @@ async def block_result(msg: Message, state: FSMContext, get_data: dict):
                 f"✅ To'g'ri javoblar soni:"
                 f"<blockquote>{len(answer_api['true_answers'])}</blockquote>\n"
                 f"⏰ Siz topshirgan vaqt:"
-                f"<blockquote>{date_change_format(answer_api['created_at'])}</blockquote>\n"
+                f"<blockquote>{answer_api['created_at']}</blockquote>\n"
                 f"〽️ Natija:"
                 f"<blockquote>{(len(answer_api['true_answers']) / answer_api['size'] * 100):.2f} %</blockquote>\n\n"
                 f"❗️ Noto'g'ri javoblaringiz test yakunlanganidan so'ng yuboriladi!\n")
